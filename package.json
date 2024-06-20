@@ -1,0 +1,19 @@
+{
+  "name": "spotify-song-recommender",
+  "version": "1.0.0",
+  "main": "songRecommend.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.7.2",
+    "cookie-parser": "^1.4.6",
+    "express": "^4.19.2",
+    "open": "^10.1.0",
+    "querystring": "^0.2.1"
+  },
+  "description": ""
+}
