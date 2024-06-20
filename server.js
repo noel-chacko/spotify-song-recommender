@@ -3,12 +3,14 @@ const axios = require('axios');
 const querystring = require('querystring');
 const cookieParser = require('cookie-parser');
 
+require('dotenv').config();
+
 const app = express();
 const port = 3000;
 
-const client_id = 'e339d340e1244990a1a542c0e52dd9d1'; // Your Spotify Client ID
-const client_secret = 'c889ede079714ca88c08fdfd752f7010'; // Your Spotify Client Secret
-const redirect_uri = 'http://localhost:3000/callback'; // Your Redirect URI
+const client_id = process.env.CLIENT_ID; // Your Spotify Client ID
+const client_secret = process.env.CLIENT_SECRET; // Your Spotify Client Secret
+const redirect_uri = process.env.REDIRECT_URI; // Your Redirect URI
 
 app.use(cookieParser());
 app.use(express.static(__dirname));
