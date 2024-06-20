@@ -26,6 +26,11 @@ const generateRandomString = (length) => {
 
 const stateKey = 'spotify_auth_state';
 
+// Root route to redirect to /login
+app.get('/', (req, res) => {
+  res.redirect('/login');
+});
+
 app.get('/login', (req, res) => {
   const state = generateRandomString(16);
   res.cookie(stateKey, state);
