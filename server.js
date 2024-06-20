@@ -272,12 +272,6 @@ app.get('/callback', (req, res) => {
   }
 });
 
-const startServer = async () => {
-  app.listen(port, async () => {
-    console.log(`Server running at http://localhost:${port}`);
-    const open = (await import('open')).default;
-    open(`http://localhost:${port}/login`);
-  });
-};
-
-startServer();
+app.listen(port, () => {
+  console.log(`Server running at http://localhost:${port}`);
+});
