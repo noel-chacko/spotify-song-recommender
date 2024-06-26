@@ -1,12 +1,11 @@
+require('dotenv').config();
 const express = require('express');
 const axios = require('axios');
 const querystring = require('querystring');
 const cookieParser = require('cookie-parser');
 
-require('dotenv').config();
-
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000; // Use the PORT environment variable or default to 3000
 
 const client_id = process.env.CLIENT_ID; // Your Spotify Client ID
 const client_secret = process.env.CLIENT_SECRET; // Your Spotify Client Secret
@@ -26,6 +25,11 @@ const generateRandomString = (length) => {
 };
 
 const stateKey = 'spotify_auth_state';
+
+// Root route to redirect to /login
+app.get('/', (req, res) => {
+  res.redirect('/login');
+});
 
 app.get('/login', (req, res) => {
   const state = generateRandomString(16);
@@ -220,9 +224,9 @@ app.get('/callback', (req, res) => {
                         max-width: 600px;
                         text-align: center;
                       }
-                        .info-image {
+                      .info-image {
                         margin-top: 20px;
-                        width: 250px; /* Make the image smaller */
+                        width: 50px; /* Make the image smaller */
                         height: auto; /* Maintain aspect ratio */
                       }
                     </style>
@@ -246,9 +250,9 @@ app.get('/callback', (req, res) => {
                     <div class="top-tracks-button" onclick="toggleTopTracks()">Your Top Tracks</div>
                     ${allTracksHtml}
                     <div class="info-text">
-                        Overstimulation is a constant in our everyday lives. While screen time has many concerned, we haven't stopped to think about if 24/7 music listening could be overstimulating our brains as well. <strong><span style="color: #2ecc71;">Solo Song</span></strong> intends to give you just one song per day to listen to in order to be away from media throughout the day.
+                      Overstimulation is a constant in our everyday lives. We are always watching or listening to something. While screen time has many concerned, we haven't stopped to think about it 24/7 music listening could be overstimulating our brains as well. <strong><span style="color: #2ecc71;">Solo Song</span></strong> intends to give you just one song per day to listen to in order to cherish music and allow for time to be away from media throughout the day.
                     </div>
-                    <img class="info-image" src="soloLogo.png">
+                    <img class="info-image" src="soloLogo.png" alt="Solo Song Logo">
                     <footer>&copy; 2024 Solo Song</footer>
                   </body>
                   </html>
@@ -268,12 +272,6 @@ app.get('/callback', (req, res) => {
   }
 });
 
-const startServer = async () => {
-  app.listen(port, async () => {
-    console.log(`Server running at http://localhost:${port}`);
-    const open = (await import('open')).default;
-    open(`http://localhost:${port}/login`);
-  });
-};
-
-startServer();
+app.listen(port, () => {
+  console.log(`Server running at http://localhost:${port}`);
+});
