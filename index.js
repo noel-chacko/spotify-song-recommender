@@ -225,7 +225,7 @@ app.get('/callback', (req, res) => {
                       }
                       .info-image {
                         margin-top: 20px;
-                        width: 50px;
+                        width: 250px;
                         height: auto;
                       }
                     </style>
