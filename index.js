@@ -5,11 +5,11 @@ const querystring = require('querystring');
 const cookieParser = require('cookie-parser');
 
 const app = express();
-const port = process.env.PORT || 3000; // Use the PORT environment variable or default to 3000
+const port = process.env.PORT || 3000;
 
-const client_id = process.env.CLIENT_ID; // Your Spotify Client ID
-const client_secret = process.env.CLIENT_SECRET; // Your Spotify Client Secret
-const redirect_uri = process.env.REDIRECT_URI; // Your Redirect URI
+const client_id = process.env.CLIENT_ID;
+const client_secret = process.env.CLIENT_SECRET;
+const redirect_uri = process.env.REDIRECT_URI;
 
 app.use(cookieParser());
 app.use(express.static(__dirname));
@@ -26,7 +26,6 @@ const generateRandomString = (length) => {
 
 const stateKey = 'spotify_auth_state';
 
-// Root route to redirect to /login
 app.get('/', (req, res) => {
   res.redirect('/login');
 });
@@ -85,11 +84,9 @@ app.get('/callback', (req, res) => {
           .then(response => {
             const topTracks = response.data.items;
 
-            // Collect seed artists and genres from top tracks
             const seed_artists = topTracks.map(track => track.artists[0].id).slice(0, 5);
             const seed_genres = topTracks.flatMap(track => track.genres).slice(0, 5);
 
-            // Get recommendations based on the seeds
             const recOptions = {
               url: 'https://api.spotify.com/v1/recommendations',
               headers: { 'Authorization': 'Bearer ' + access_token },
@@ -108,7 +105,7 @@ app.get('/callback', (req, res) => {
                   name: recommendation.name,
                   artist: recommendation.artists[0].name,
                   url: recommendation.external_urls.spotify,
-                  image: recommendation.album.images[0].url // Fetching the album image
+                  image: recommendation.album.images[0].url
                 };
 
                 let allTracksHtml = '<ul id="top-tracks-list" class="collapsed">';
@@ -186,10 +183,10 @@ app.get('/callback', (req, res) => {
                         margin-top: 0;
                       }
                       ul.expanded {
-                        max-height: 1000px; /* An arbitrarily large value to ensure all content is shown */
+                        max-height: 1000px;
                       }
                       li {
-                        margin: 5px 0; /* Reduced margin between list items */
+                        margin: 5px 0;
                       }
                       a {
                         color: #2ecc71;
@@ -204,7 +201,7 @@ app.get('/callback', (req, res) => {
                         align-items: center;
                         text-align: center;
                         margin-bottom: 20px;
-                        padding-top: 40px; /* Reduced top padding */
+                        padding-top: 40px;
                       }
                       .recommendation img {
                         width: 200px;
@@ -226,8 +223,8 @@ app.get('/callback', (req, res) => {
                       }
                       .info-image {
                         margin-top: 20px;
-                        width: 50px; /* Make the image smaller */
-                        height: auto; /* Maintain aspect ratio */
+                        width: 50px;
+                        height: auto;
                       }
                     </style>
                     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">
