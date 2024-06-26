@@ -11,6 +11,8 @@ const client_id = process.env.CLIENT_ID;
 const client_secret = process.env.CLIENT_SECRET;
 const redirect_uri = process.env.REDIRECT_URI;
 
+console.log('Redirect URI:', redirect_uri);  // Debugging line
+
 app.use(cookieParser());
 app.use(express.static(__dirname));
 
