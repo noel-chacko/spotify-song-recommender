@@ -75,6 +75,7 @@ app.get('/callback', (req, res) => {
     axios.post(authOptions.url, querystring.stringify(authOptions.form), { headers: authOptions.headers })
       .then(response => {
         const access_token = response.data.access_token;
+        console.log('Access Token:', access_token); // Debugging line
 
         const options = {
           url: 'https://api.spotify.com/v1/me/top/tracks',
@@ -85,6 +86,12 @@ app.get('/callback', (req, res) => {
         axios.get(options.url, { headers: options.headers })
           .then(response => {
             const topTracks = response.data.items;
+            console.log('Top Tracks:', topTracks); // Debugging line
+
+            if (!topTracks.length) {
+              res.send('No top tracks found for this user.');
+              return;
+            }
 
             const seed_artists = topTracks.map(track => track.artists[0].id).slice(0, 5);
             const seed_genres = topTracks.flatMap(track => track.genres).slice(0, 5);
@@ -103,6 +110,8 @@ app.get('/callback', (req, res) => {
             axios.get(recOptions.url, { headers: recOptions.headers, params: recOptions.params })
               .then(recResponse => {
                 const recommendation = recResponse.data.tracks[0];
+                console.log('Recommendation:', recommendation); // Debugging line
+
                 const recommendationInfo = {
                   name: recommendation.name,
                   artist: recommendation.artists[0].name,
@@ -258,14 +267,17 @@ app.get('/callback', (req, res) => {
                 `);
               })
               .catch(error => {
+                console.error('Error fetching recommendations:', error.response ? error.response.data : error); // Debugging line
                 res.send('Error fetching recommendations');
               });
           })
           .catch(error => {
+            console.error('Error fetching top tracks:', error.response ? error.response.data : error); // Debugging line
             res.send('Error fetching top tracks');
           });
       })
       .catch(error => {
+        console.error('Error getting token:', error.response ? error.response.data : error); // Debugging line
         res.send('Error getting token');
       });
   }
