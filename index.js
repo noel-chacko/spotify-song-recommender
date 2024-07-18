@@ -3,8 +3,6 @@ const express = require('express');
 const axios = require('axios');
 const querystring = require('querystring');
 const cookieParser = require('cookie-parser');
-const path = require('path');
-const fs = require('fs');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -121,30 +119,152 @@ app.get('/callback', (req, res) => {
                   image: recommendation.album.images[0].url
                 };
 
-                let topTracksHtml = '';
+                let allTracksHtml = '<ul id="top-tracks-list" class="collapsed">';
                 topTracks.forEach(track => {
-                  topTracksHtml += `<li><strong>${track.name}</strong> by ${track.artists[0].name} - <a href="${track.external_urls.spotify}" target="_blank">Listen</a></li>`;
+                  allTracksHtml += `<li><strong>${track.name}</strong> by ${track.artists[0].name} - <a href="${track.external_urls.spotify}" target="_blank">Listen</a></li>`;
                 });
+                allTracksHtml += '</ul>';
 
-                fs.readFile(path.join(__dirname, 'index.html'), 'utf8', (err, data) => {
-                  if (err) {
-                    res.status(500).send('Error reading HTML file');
-                    return;
-                  }
-
-                  const updatedHtml = data.replace(
-                    '<script>updatePage(recommendationInfo, topTracksHtml);</script>',
-                    `<script>
-                      document.getElementById('recommendation-image').src = '${recommendationInfo.image}';
-                      document.getElementById('recommendation-link').href = '${recommendationInfo.url}';
-                      document.getElementById('recommendation-name').textContent = '${recommendationInfo.name}';
-                      document.getElementById('recommendation-artist').textContent = '${recommendationInfo.artist}';
-                      document.getElementById('top-tracks-list').innerHTML = \`${topTracksHtml}\`;
-                    </script>`
-                  );
-
-                  res.send(updatedHtml);
-                });
+                res.send(`
+                  <!DOCTYPE html>
+                  <html lang="en">
+                  <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Spotify Song Recommender</title>
+                    <style>
+                      body {
+                        font-family: 'Quicksand', sans-serif;
+                        background-color: #f5f5f5;
+                        color: #333;
+                        margin: 0;
+                        padding: 20px;
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        justify-content: center;
+                      }
+                      header {
+                        position: fixed;
+                        top: 0;
+                        width: 100%;
+                        background-color: #2ecc71;
+                        color: white;
+                        text-align: center;
+                        padding: 10px 0;
+                        font-size: 24px;
+                        font-weight: bold;
+                      }
+                      footer {
+                        position: fixed;
+                        bottom: 0;
+                        width: 100%;
+                        background-color: #2ecc71;
+                        color: white;
+                        text-align: center;
+                        padding: 5px 0;
+                        font-size: 14px;
+                      }
+                      h1 {
+                        color: #2ecc71;
+                        margin-bottom: 20px;
+                      }
+                      .top-tracks-button {
+                        color: white;
+                        cursor: pointer;
+                        background-color: #2ecc71;
+                        padding: 10px 20px;
+                        border-radius: 25px;
+                        transition: background-color 0.3s;
+                        width: 100%;
+                        max-width: 600px;
+                        text-align: center;
+                        margin-bottom: 0;
+                      }
+                      .top-tracks-button:hover {
+                        background-color: #27ae60;
+                      }
+                      ul {
+                        list-style-type: none;
+                        padding: 0;
+                        max-height: 0;
+                        overflow: hidden;
+                        transition: max-height 0.5s ease-out;
+                        text-align: center;
+                        margin-top: 0;
+                      }
+                      ul.expanded {
+                        max-height: 1000px;
+                      }
+                      li {
+                        margin: 5px 0;
+                      }
+                      a {
+                        color: #2ecc71;
+                        text-decoration: none;
+                      }
+                      a:hover {
+                        text-decoration: underline;
+                      }
+                      .recommendation {
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        text-align: center;
+                        margin-bottom: 20px;
+                        padding-top: 40px;
+                      }
+                      .recommendation img {
+                        width: 200px;
+                        height: 200px;
+                        border-radius: 15px;
+                        margin-bottom: 10px;
+                      }
+                      .recommendation p a {
+                        color: #2ecc71;
+                        font-weight: bold;
+                      }
+                      .info-text {
+                        margin-top: 20px;
+                        padding: 20px;
+                        background-color: #e0f7e9;
+                        border-radius: 10px;
+                        max-width: 600px;
+                        text-align: center;
+                      }
+                      .info-image {
+                        margin-top: 20px;
+                        width: 250px;
+                        height: auto;
+                      }
+                    </style>
+                    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+                    <script>
+                      function toggleTopTracks() {
+                        var topTracksList = document.getElementById('top-tracks-list');
+                        topTracksList.classList.toggle('expanded');
+                      }
+                    </script>
+                  </head>
+                  <body>
+                    <header>Solo Song</header>
+                    <div class="recommendation">
+                      <h1>Today's Song Recommendation</h1>
+                      <a href="${recommendationInfo.url}" target="_blank">
+                        <img src="${recommendationInfo.image}" alt="${recommendationInfo.name} Album Art">
+                      </a>
+                      <p><a href="${recommendationInfo.url}" target="_blank"><strong>${recommendationInfo.name}</strong></a> by ${recommendationInfo.artist}</p>
+                    </div>
+                    <div class="top-tracks-button" onclick="toggleTopTracks()">Your Top Tracks</div>
+                    ${allTracksHtml}
+                    <div class="info-text">
+                      Overstimulation is a constant in our everyday lives. We are always watching or listening to something. While screen time has many concerned, we haven't stopped to think about it 24/7 music listening could be overstimulating our brains as well. <strong><span style="color: #2ecc71;">Solo Song</span></strong> intends to give you just one song per day to listen to in order to cherish music and allow for time to be away from media throughout the day.
+                    </div>
+                    <img class="info-image" src="soloLogo.png" alt="Solo Song Logo">
+                    <footer>&copy; 2024 Solo Song</footer>
+                  </body>
+                  </html>
+                `);
               })
               .catch(error => {
                 console.error('Error fetching recommendations:', error.response ? error.response.data : error); // Debugging line
